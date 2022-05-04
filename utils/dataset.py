@@ -1,3 +1,4 @@
+from pathlib import Path
 import torch
 from torch.utils import data
 from torch.utils.data import Dataset, DataLoader
@@ -85,7 +86,7 @@ class GoogleSpeechDataset(Dataset):
             self.label_list = []
             label_2_idx = {v: int(k) for k, v in label_map.items()}
             for path in data_list:
-                self.label_list.append(label_2_idx[path.split("/")[-2]])
+                self.label_list.append(label_2_idx[Path(path).parts[-2]])
         else:
             self.label_list = None
         

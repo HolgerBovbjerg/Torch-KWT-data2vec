@@ -74,7 +74,7 @@ hparams:
             #s_max: 0.1
 
             #bg_noise:
-            #bg_folder: /user/student.aau.dk/hbovbj17/project/data/speech_commands_v0.02/_generated/_background_noise_/
+            #bg_folder: /home/ubuntu/GoogleSpeechCommands/speech_commands_v0.02/_background_noise_/
 
         # spec_aug:
         #     n_time_masks: 2

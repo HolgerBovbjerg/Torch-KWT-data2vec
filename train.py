@@ -55,8 +55,14 @@ def training_pipeline(config):
 
     # model
     model = get_model(config["hparams"]["model"])
+    if args.ckpt:
+        ckpt = torch.load(args.ckpt, map_location="cpu")
+        model.load_state_dict(ckpt["model_state_dict"])
+        print(f"Loaded checkpoint {args.ckpt}.")
     model = model.to(config["hparams"]["device"])
     print(f"Created model with {count_params(model)} parameters.")
+
+
 
     # loss
     if config["hparams"]["l_smooth"]:
@@ -148,6 +154,7 @@ def main(args):
 if __name__ == "__main__":
     parser = ArgumentParser("Driver code.")
     parser.add_argument("--conf", type=str, required=True, help="Path to config.yaml file.")
+    parser.add_argument("--ckpt", type=str, required=True, help="Path to checkpoint file.", default=None)
     args = parser.parse_args()
 
     main(args)

@@ -120,10 +120,11 @@ def training_pipeline(config):
    
 
     # evaluating the final state (last.pth)
-    test_acc, test_loss = evaluate(model, mask_generator, criterion, testloader, config["hparams"]["device"])
+    test_loss, test_target_var, test_prediction_var = evaluate(model, mask_generator, criterion, testloader, config["hparams"]["device"])
     log_dict = {
         "test_loss_last": test_loss,
-        "test_acc_last": test_acc
+        "test_target_var_last": test_target_var,
+        "test_prediction_var_last": test_prediction_var,
     }
     log(log_dict, final_step, config)
 
@@ -132,10 +133,11 @@ def training_pipeline(config):
     model.load_state_dict(ckpt["model_state_dict"])
     print("Best ckpt loaded.")
 
-    test_acc, test_loss = evaluate(model, criterion, testloader, config["hparams"]["device"])
+    test_loss, test_target_var, test_prediction_var = evaluate(model, mask_generator, criterion, testloader, config["hparams"]["device"])
     log_dict = {
         "test_loss_best": test_loss,
-        "test_acc_best": test_acc
+        "test_target_var_best": test_target_var,
+        "test_prediction_var_best": test_prediction_var,
     }
     log(log_dict, final_step, config)
 
