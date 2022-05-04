@@ -6,7 +6,7 @@ import numpy as np
 import random
 import os
 import wandb
-from models.kwt import KWT, kwt_from_name
+from models.KWT2 import KWT, kwt_from_name
 
 
 def seed_everything(seed: str) -> None:
