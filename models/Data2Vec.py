@@ -73,7 +73,6 @@ class Data2Vec(nn.Module):
         if self.ema.decay < 1:
             self.ema.step(self.encoder)
 
-
     def forward(self, src, trg=None, mask=None, **kwargs):
         """
         Data2Vec forward method.
@@ -102,10 +101,10 @@ class Data2Vec(nn.Module):
                     y = F.layer_norm(y.float(), y.shape[-1:])
 
             elif self.modality == 'audio':  # Use instance normalization for audio
-                y = [F.instance_norm(tl.float()) for tl in y]
+                y = [F.instance_norm(tl.float().transpose(1, 2)).transpose(1, 2) for tl in y]
                 y = sum(y) / len(y)
                 if self.normalize_targets:
-                    y = F.instance_norm(y.transpose(1, 2)).transpose(1, 2)
+                    y = F.instance_norm(y).transpose(1, 2).transpose(1, 2)
 
         x = x[mask]
         y = y[mask]

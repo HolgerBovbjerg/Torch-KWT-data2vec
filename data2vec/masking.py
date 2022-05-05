@@ -175,17 +175,6 @@ def generate_masked_tensor(input_tensor, mask, fill=0):
 
 
 if __name__ == "__main__":
-    transform = MIMTransform()
-
-    num_patches = 14
-    num_mask_patches = 120
-    max_num_patches = 196
-    min_num_patches = 16
-
-    video_mask_generator = ImageMaskingGenerator(input_size=num_patches,
-                                                 num_masking_patches=num_mask_patches,
-                                                 max_num_patches=max_num_patches,
-                                                 min_num_patches=min_num_patches)
     audio_mask_generator = AudioMaskingGenerator(mask_prob=0.065,
                                                  mask_length=10,
                                                  attention_mask=None,
