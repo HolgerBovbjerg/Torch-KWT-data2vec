@@ -1,4 +1,5 @@
 from argparse import ArgumentParser
+import datetime
 from data2vec.config_parser import get_config
 
 from data2vec.utils.loss import LabelSmoothingLoss
@@ -159,7 +160,9 @@ def main(args):
             wandb.login()
         
         
-        with wandb.init(project=config["exp"]["proj_name"], name=config["exp"]["exp_name"], config=config["hparams"]):
+        with wandb.init(project=config["exp"]["proj_name"], 
+                        name=(config["exp"]["exp_name"]), 
+                        config=config["hparams"]):
             training_pipeline(config)
     
     else:
