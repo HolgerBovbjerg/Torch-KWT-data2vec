@@ -45,7 +45,7 @@ def train_single_batch(net: nn.Module, data: torch.Tensor, mask: torch.Tensor, o
     predictions, targets = net(data, data, mask)
     scale = math.sqrt(predictions.size(dim=-1))
     loss = criterion(predictions.float(), targets.float()).sum(dim=-1).sum().div(scale) + \
-           25*variance_loss(predictions.float(), targets.float())
+           250*variance_loss(predictions.float(), targets.float())
     loss.backward()
     optimizer.step()
     with torch.no_grad():
