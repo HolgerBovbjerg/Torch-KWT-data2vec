@@ -32,7 +32,7 @@ def training_pipeline(config):
 
     config["exp"]["save_dir"] = os.path.join(config["exp"]["exp_dir"], config["exp"]["exp_name"])
     os.makedirs(config["exp"]["save_dir"], exist_ok=True)
-    
+
     ######################################
     # save hyperparameters for current run
     ######################################
@@ -42,7 +42,7 @@ def training_pipeline(config):
 
     with open(os.path.join(config["exp"]["save_dir"], "settings.txt"), "w+") as f:
         f.write(config_str)
-    
+
     #####################################
     # initialize training items
     #####################################
@@ -50,7 +50,7 @@ def training_pipeline(config):
     # data
     with open(config["train_list_file"], "r") as f:
         train_list = f.read().rstrip().split("\n")
-    
+
     with open(config["val_list_file"], "r") as f:
         val_list = f.read().rstrip().split("\n")
 
@@ -59,9 +59,9 @@ def training_pipeline(config):
 
     # mask generator
     mask_generator = AudioMaskingGenerator(mask_prob=config["hparams"]["model"]["mask_prob"],
-                                                 mask_length=config["hparams"]["model"]["mask_length"],
-                                                 attention_mask=None,
-                                                 min_masks=config["hparams"]["model"]["min_masks"])
+                                           mask_length=config["hparams"]["model"]["mask_length"],
+                                           attention_mask=None,
+                                           min_masks=config["hparams"]["model"]["min_masks"])
 
     # model
     if config["hparams"]["model"]["name"] is not None:
@@ -80,8 +80,9 @@ def training_pipeline(config):
     print(f"Created model with {count_params(model)} parameters.")
 
     # loss
-    criterion = nn.SmoothL1Loss(reduction="none", beta=config["hparams"]["loss_beta"])
-    
+    # criterion = nn.SmoothL1Loss(reduction="none", beta=config["hparams"]["loss_beta"])
+    criterion = nn.MSELoss(reduction="none")
+
     # optimizer
     parameters = model.parameters()
     optimizer = optim.Adam(parameters, lr=config["hparams"]["optimizer"]["opt_kwargs"]["lr"],
@@ -101,7 +102,6 @@ def training_pipeline(config):
     schedulers = {"scheduler": lr_scheduler,
                   "warmup": 0}
 
-
     #####################################
     # Training Run
     #####################################
@@ -118,10 +118,10 @@ def training_pipeline(config):
 
     testloader = get_loader(test_list, config, train=False)
     final_step = calc_step(config["hparams"]["n_epochs"] + 1, len(trainloader), len(trainloader) - 1)
-   
 
     # evaluating the final state (last.pth)
-    test_loss, test_target_var, test_prediction_var = evaluate(model, mask_generator, criterion, testloader, config["hparams"]["device"])
+    test_loss, test_target_var, test_prediction_var = evaluate(model, mask_generator, criterion, testloader,
+                                                               config["hparams"]["device"])
     log_dict = {
         "test_loss_last": test_loss,
         "test_target_var_last": test_target_var,
@@ -134,7 +134,8 @@ def training_pipeline(config):
     model.load_state_dict(ckpt["model_state_dict"])
     print("Best ckpt loaded.")
 
-    test_loss, test_target_var, test_prediction_var = evaluate(model, mask_generator, criterion, testloader, config["hparams"]["device"])
+    test_loss, test_target_var, test_prediction_var = evaluate(model, mask_generator, criterion, testloader,
+                                                               config["hparams"]["device"])
     log_dict = {
         "test_loss_best": test_loss,
         "test_target_var_best": test_target_var,
@@ -147,27 +148,24 @@ def main(args):
     config = get_config(args.conf)
     seed_everything(config["hparams"]["seed"])
 
-
     if config["exp"]["wandb"]:
         if config["exp"]["wandb_api_key"] is not None:
             with open(config["exp"]["wandb_api_key"], "r") as f:
                 os.environ["WANDB_API_KEY"] = f.read()
-        
+
         elif os.environ.get("WANDB_API_KEY", False):
             print(f"Found API key from env variable.")
-        
+
         else:
             wandb.login()
-        
-        
+
         with wandb.init(project=config["exp"]["proj_name"], 
                         name=(config["exp"]["exp_name"]), 
                         config=config["hparams"]):
             training_pipeline(config)
-    
+
     else:
         training_pipeline(config)
-
 
 
 if __name__ == "__main__":

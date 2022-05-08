@@ -1,6 +1,7 @@
 import math
 import torch
 from torch import nn, optim
+import torch.nn.functional as F
 from typing import Callable, Tuple
 from torch.utils.data import DataLoader
 from data2vec.utils.misc import log, save_model
@@ -12,6 +13,13 @@ from tqdm import tqdm
 def compute_var(y):
     y = y.view(-1, y.size(-1))
     return torch.sqrt(y.var(dim=0) + 1e-6).mean()
+
+
+def variance_loss(z_a, z_b):
+    std_z_a = torch.sqrt(z_a.var(dim=0) + 1e-6).mean()
+    std_z_b = torch.sqrt(z_b.var(dim=0) + 1e-6).mean()
+    var_loss = torch.mean(F.relu(1 - std_z_a)) + torch.mean(F.relu(1 - std_z_b))
+    return var_loss
 
 
 def train_single_batch(net: nn.Module, data: torch.Tensor, mask: torch.Tensor, optimizer: optim.Optimizer,
@@ -36,7 +44,8 @@ def train_single_batch(net: nn.Module, data: torch.Tensor, mask: torch.Tensor, o
     optimizer.zero_grad()
     predictions, targets = net(data, data, mask)
     scale = math.sqrt(predictions.size(dim=-1))
-    loss = criterion(predictions.float(), targets.float()).sum(dim=-1).sum().div(scale)
+    loss = criterion(predictions.float(), targets.float()).sum(dim=-1).sum().div(scale) + \
+           25*variance_loss(predictions.float(), targets.float())
     loss.backward()
     optimizer.step()
     with torch.no_grad():
@@ -47,7 +56,7 @@ def train_single_batch(net: nn.Module, data: torch.Tensor, mask: torch.Tensor, o
 
 @torch.no_grad()
 def evaluate(net: nn.Module, mask_generator, criterion: Callable, dataloader: DataLoader, device: torch.device) -> \
-Tuple[float, float]:
+        Tuple[float, float]:
     """Performs inference.
 
     Args:
