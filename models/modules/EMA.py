@@ -1,3 +1,5 @@
+import copy
+
 import torch
 import torch.nn as nn
 
@@ -8,7 +10,7 @@ class EMA:
     """
 
     def __init__(self, model: nn.Module, device=None, skip_keys=None, ema_decay=0.999):
-        self.model = model
+        self.model = copy.deepcopy(model)
         self.model.requires_grad_(False)
         self.model.to(device)
         self.device = device
@@ -46,3 +48,42 @@ class EMA:
         r = end - start
         pct_remaining = 1 - curr_step / total_steps
         return end - r * pct_remaining
+
+
+if __name__ == "__main__":
+    class Net(nn.Module):
+        def __init__(self):
+            super().__init__()
+            self.net = nn.Sequential(
+                nn.LayerNorm(10),
+                nn.Linear(10, 10),
+                nn.Linear(10, 2)
+            )
+
+        def forward(self, x):
+            return self.net(x)
+
+
+    import torch.optim as optim
+
+    model = Net()
+
+    ema = EMA(model)
+
+    ema_param_before = list(ema.model.parameters())
+
+    criterion = nn.CrossEntropyLoss()
+    optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
+
+    optimizer.zero_grad()
+    data = torch.randn(2, 10, requires_grad=True)
+    out = model(data)
+    labels = torch.randint(0, 2, size=(2, 2)).float()
+    loss = criterion(out, labels)
+    loss.backward()
+    optimizer.step()
+    ema.step(model)
+
+    ema_param_after = list(ema.model.parameters())
+
+    print("done")
