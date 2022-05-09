@@ -35,7 +35,7 @@ class Data2Vec(nn.Module):
         self.normalize_targets = normalize_targets
         self.__dict__.update(kwargs)
 
-        self.ema = EMA(self.encoder)  # EMA acts as the teacher
+        self.ema = EMA(self.encoder, device="cuda")  # EMA acts as the teacher
         self.regression_head = self._build_regression_head()
 
     def _build_regression_head(self):

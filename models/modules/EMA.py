@@ -12,7 +12,8 @@ class EMA:
     def __init__(self, model: nn.Module, device=None, skip_keys=None, ema_decay=0.999):
         self.model = copy.deepcopy(model)
         self.model.requires_grad_(False)
-        self.model.to(device)
+        if device is not None:
+            self.model.to(device)
         self.device = device
         self.skip_keys = skip_keys or set()
         self.decay = ema_decay
