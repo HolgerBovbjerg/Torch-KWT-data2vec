@@ -1,8 +1,8 @@
 # sample config
 
 data_root: /home/ubuntu/GoogleSpeechCommands/speech_commands_v0.02/
-train_list_file: /home/ubuntu/GoogleSpeechCommands/speech_commands_v0.02/_generated/training_list.txt
-val_list_file: /home/ubuntu/GoogleSpeechCommands/speech_commands_v0.02/_generated/validation_list.txt
+train_list_file: /home/ubuntu/GoogleSpeechCommands/speech_commands_v0.02/_generated/validation_list.txt
+val_list_file: /home/ubuntu/GoogleSpeechCommands/speech_commands_v0.02/_generated/testing_list.txt
 test_list_file: /home/ubuntu/GoogleSpeechCommands/speech_commands_v0.02/_generated/testing_list.txt
 label_map: /home/ubuntu/GoogleSpeechCommands/speech_commands_v0.02/_generated/label_map.json
 
@@ -11,7 +11,7 @@ exp:
     wandb_api_key: 
     proj_name: data2vec_KWS
     exp_dir: ./runs
-    exp_name: baseline_kwt1_11052022_14.36
+    exp_name: kwt2_finetune_small_12_05_2022_13.13
     device: auto
     log_freq: 20    # log every l_f steps
     log_to_file: True
@@ -19,7 +19,7 @@ exp:
     val_freq: 5    # validate every v_f epochs
     n_workers: 1
     pin_memory: True
-    cache: 1 # 0 -> no cache | 1 -> cache wavs | 2 -> cache specs; stops wav augments
+    cache: 2 # 0 -> no cache | 1 -> cache wavs | 2 -> cache specs; stops wav augments
     
 
 hparams:
@@ -37,7 +37,8 @@ hparams:
         center: False
     
     model:
-        name: kwt-1 # if name is provided below settings will be ignored during model creation   
+        name: kwt-2 # if name is provided below settings will be ignored during model creation
+        checkpoint:    
         input_res: [40, 98]
         patch_res: [40, 1]
         num_classes: 35
@@ -65,11 +66,11 @@ hparams:
             r_min: 0.85
             r_max: 1.15
         
-        time_shift:
+            time_shift:
             s_min: -0.1
             s_max: 0.1
 
-        bg_noise:
+            bg_noise:
             bg_folder: /home/ubuntu/GoogleSpeechCommands/speech_commands_v0.02/_background_noise_/
 
         spec_aug:

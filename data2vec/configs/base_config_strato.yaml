@@ -13,7 +13,7 @@ exp:
     wandb_api_key: 
     proj_name: data2vec_KWS
     exp_dir: ./runs
-    exp_name: data2vec_kwt1_08052022_13.55
+    exp_name: data2vec_kwt2_11052022_22.50
     device: auto
     log_freq: 20    # log every l_f steps
     log_to_file: True
@@ -26,8 +26,8 @@ exp:
 
 hparams:
     seed: 0
-    batch_size: 2048
-    n_epochs: 800
+    batch_size: 512
+    n_epochs: 200
     device: "cuda"
     loss_beta: 2
 
@@ -40,11 +40,11 @@ hparams:
         center: False
     
     model:
-        name: kwt-1 # if name is provided below settings will be ignored during model creation   
-        dim: 64
-        ema_decay: 0.9998
+        name: kwt-2 # if name is provided below settings will be ignored during model creation   
+        dim: 128
+        ema_decay: 0.999
         ema_end_decay: 0.9999
-        ema_anneal_end_step: 30000
+        ema_anneal_end_step: 1000
         average_top_k_layers: 8
         normalize_targets: true
         mask_prob: 0.65
@@ -61,7 +61,7 @@ hparams:
     
     scheduler:
         n_warmup: 0
-        max_epochs: 800
+        max_epochs: 200
         scheduler_type: cosine_annealing
 
     augment:
