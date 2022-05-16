@@ -15,13 +15,14 @@ from utils.augment import time_shift, resample, spec_augment
 from audiomentations import AddBackgroundNoise
 
 
-def get_train_val_test_split(root: str, val_file: str, test_file: str):
+def get_train_val_test_split(root: str, val_file: str, test_file: str, pretrain: float = None):
     """Creates train, val, and test split according to provided val and test files.
 
     Args:
         root (str): Path to base directory of the dataset.
         val_file (str): Path to file containing list of validation data files.
         test_file (str): Path to file containing list of test data files.
+        pretrain (float): Value between 0 and 1, depending on how big pretrain set should be.
     
     Returns:
         train_list (list): List of paths to training data items.
@@ -55,14 +56,24 @@ def get_train_val_test_split(root: str, val_file: str, test_file: str):
     
     all_files_set -= val_files_set
     all_files_set -= test_files_set
-    
-    train_list, val_list, test_list = list(all_files_set), list(val_files_set), list(test_files_set)
-    
+    all_files_list = list(all_files_set)
+
+    pretrain_list = []
+    if pretrain is not None:
+        pretrain_len = round(len(all_files_list)*pretrain)
+        pretrain_list = list(all_files_list)[:pretrain_len]
+        train_list = list(all_files_list)[pretrain_len:]
+    else:
+        train_list = all_files_list
+
+    val_list, test_list = list(val_files_set), list(test_files_set)
+
+    print(f"Number of pretraining samples: {len(pretrain_list)}")
     print(f"Number of training samples: {len(train_list)}")
     print(f"Number of validation samples: {len(val_list)}")
     print(f"Number of test samples: {len(test_list)}")
 
-    return train_list, val_list, test_list, label_map
+    return pretrain_list, train_list, val_list, test_list, label_map
 
 
 class GoogleSpeechDataset(Dataset):
