@@ -77,6 +77,7 @@ def training_pipeline(config):
                         average_top_k_layers=config["hparams"]["model"]["average_top_k_layers"],
                         normalize_targets=config["hparams"]["model"]["normalize_targets"])
     model = data2vec.to(config["hparams"]["device"])
+
     print(f"Created model with {count_params(model)} parameters.")
 
     # loss

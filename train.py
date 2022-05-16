@@ -62,8 +62,6 @@ def training_pipeline(config):
     model = model.to(config["hparams"]["device"])
     print(f"Created model with {count_params(model)} parameters.")
 
-
-
     # loss
     if config["hparams"]["l_smooth"]:
         criterion = LabelSmoothingLoss(num_classes=config["hparams"]["model"]["num_classes"], smoothing=config["hparams"]["l_smooth"])
